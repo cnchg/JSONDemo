@@ -1,5 +1,6 @@
 package com.tricloudcommunications.ce.jsondemo;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
+
+    TextView textView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +44,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        textView2 = (TextView) findViewById(R.id.textView2);
+
         DownLoadTask task = new DownLoadTask();
         task.execute("http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=968ed395d494be9817a5c648ed7aa697");
     }
 
     public class DownLoadTask extends AsyncTask<String, Void, String>{
+
+        ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            pdLoading.setMessage("Loading...");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
+
+        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -83,7 +105,35 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            Log.i("API content", result);
+            pdLoading.hide();
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(result);
+
+                String weatherInfo = jsonObject.getString("weather");
+
+                JSONArray jsonArr = new JSONArray(weatherInfo);
+
+                for (int i = 0; i < jsonArr.length(); i++){
+
+                    JSONObject jsonPart = jsonArr.getJSONObject(i);
+
+                    Log.i("main", jsonPart.getString("main"));
+                    Log.i("description", jsonPart.getString("description"));
+
+                    textView2.setText("London: " + jsonPart.getString("main") + " Desc: " + jsonPart.getString("description"));
+                }
+
+                Log.i("Weather content", weatherInfo);
+
+            } catch (JSONException e) {
+
+                e.printStackTrace();
+
+            }
+
+            //Log.i("API content", result);
         }
     }
 
