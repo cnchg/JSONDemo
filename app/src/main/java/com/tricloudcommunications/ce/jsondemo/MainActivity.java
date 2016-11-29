@@ -27,6 +27,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     TextView textView2;
+    String API_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +46,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         textView2 = (TextView) findViewById(R.id.textView2);
+        API_ID = "";//Use your openweather.org API ID
 
         DownLoadTask task = new DownLoadTask();
-        task.execute("http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=968ed395d494be9817a5c648ed7aa697");
+        task.execute("http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid="+API_ID);
     }
 
     public class DownLoadTask extends AsyncTask<String, Void, String>{
